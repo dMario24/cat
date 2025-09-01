@@ -3,9 +3,18 @@
 import { supabase } from '@/lib/supabase'
 import { revalidatePath } from 'next/cache'
 
-export async function createFeedingRecord(formData: FormData) {
+export type FormState = {
+  error: string | null;
+  success: boolean;
+};
+
+export async function createFeedingRecord(prevState: FormState, formData: FormData): Promise<FormState> {
   const notes = formData.get('notes') as string
   const picture = formData.get('picture') as File
+
+  if (picture.size === 0) {
+    return { error: '사진을 선택해주세요.', success: false };
+  }
 
   // 1. Upload image to Supabase Storage
   const { data: imageData, error: imageError } = await supabase.storage
@@ -14,7 +23,7 @@ export async function createFeedingRecord(formData: FormData) {
 
   if (imageError) {
     console.error('Error uploading image:', imageError)
-    return { error: imageError.message }
+    return { error: imageError.message, success: false }
   }
 
   // 2. Get public URL of the uploaded image
@@ -31,11 +40,11 @@ export async function createFeedingRecord(formData: FormData) {
 
   if (recordError) {
     console.error('Error inserting record:', recordError)
-    return { error: recordError.message }
+    return { error: recordError.message, success: false }
   }
 
   // 4. Revalidate the page
   revalidatePath('/')
 
-  return { success: true }
+  return { success: true, error: null }
 }
