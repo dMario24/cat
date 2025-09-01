@@ -1,36 +1,41 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# cat
+디지노리 사무실 앞 마스코드 엄마냥 - 까만 새끼 고양이 두마리의 엄마의 이야기
+
+<img width="555" alt=" 까만 새끼 고양이 두마리의 엄마냥" src="https://github.com/user-attachments/assets/b73d12f2-005d-4ae5-95ac-730b1fbd735a" />
+
 
 ## Getting Started
-
-First, run the development server:
-
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## SUPABASE DB
+```sql
+물론이죠. 아래 SQL 쿼리를 Supabase 대시보드의 SQL 편집기에서 실행하시면 됩니다.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+테이블 생성:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+CREATE TABLE public.feeding_records (
+    id uuid NOT NULL DEFAULT uuid_generate_v4(),
+    created_at timestamp with time zone NOT NULL DEFAULT now(),
+    notes text NULL,
+    image_url text NULL,
+    CONSTRAINT feeding_records_pkey PRIMARY KEY (id)
+);
+저장소 버킷 생성: 저장소 버킷은 SQL로 직접 생성할 수 없습니다. Supabase 대시보드의 Storage 섹션에서 cat-pictures라는 이름의 공개 버킷을 만들어 주세요.
 
-## Learn More
+RLS 활성화 및 정책 생성:
 
-To learn more about Next.js, take a look at the following resources:
+-- Row Level Security 활성화
+ALTER TABLE public.feeding_records ENABLE ROW LEVEL SECURITY;
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+-- 공개 읽기 접근 정책 생성
+CREATE POLICY "Public read access" ON public.feeding_records
+FOR SELECT USING (true);
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+-- 공개 쓰기 접근 정책 생성
+CREATE POLICY "Public insert access" ON public.feeding_records
+FOR INSERT WITH CHECK (true);
+이 쿼리들을 실행하신 후에 알려주세요.
+```
