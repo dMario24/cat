@@ -13,19 +13,28 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://dginori-cat-feeding.vercel.app'),
   title: "디지노리 새끼 고양이 밥주기 기록 🐾",
   description: "디지노리 새끼 고양이들의 소중한 밥주기 기록을 남기고 공유하는 공간입니다.",
   openGraph: {
     title: "디지노리 새끼 고양이 밥주기 기록 🐾",
     description: "디지노리 새끼 고양이들의 소중한 밥주기 기록을 남기고 공유하는 공간입니다.",
     type: "website",
-    url: "https://dginori-cat-feeding.vercel.app/", // Replace with your actual URL
+    url: "/",
+    images: [
+      {
+        url: '/api/og',
+        width: 1200,
+        height: 630,
+        alt: '디지노리 새끼 고양이 밥주기 기록',
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "디지노리 새끼 고양이 밥주기 기록 🐾",
     description: "디지노리 새끼 고양이들의 소중한 밥주기 기록을 남기고 공유하는 공간입니다.",
-    // image: 'https://your-website.com/og-image.png', // Add an image if you have one
+    images: ['/api/og'],
   },
 };
 
