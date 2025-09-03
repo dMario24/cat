@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect, useRef, useState } from "react";
-import { useFormState, useFormStatus } from "react-dom";
+import { useEffect, useRef, useState, useTransition } from "react";
+import { useFormState } from "react-dom";
+import heic2any from "heic2any";
 import {
   Card,
   CardContent,
@@ -28,11 +29,10 @@ interface FeedingRecord {
   image_url: string;
 }
 
-function SubmitButton() {
-  const { pending } = useFormStatus();
+function SubmitButton({ isPending }: { isPending: boolean }) {
   return (
-    <Button type="submit" disabled={pending}>
-      {pending ? "기록 중..." : "기록하기"}
+    <Button type="submit" disabled={isPending}>
+      {isPending ? "기록 중..." : "기록하기"}
     </Button>
   );
 }
@@ -42,6 +42,7 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const [state, formAction] = useFormState(createFeedingRecord, initialState);
+  const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
     if (state.success) {
@@ -64,29 +65,54 @@ export default function Home() {
     fetchRecords();
   }, [state.success]); // Refetch when a new record is successfully added
 
+  const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    startTransition(async () => {
+      const formData = new FormData(event.currentTarget);
+      let picture = formData.get('picture') as File;
+
+      if (picture && (picture.type === 'image/heic' || picture.type === 'image/heif' || picture.name.toLowerCase().endsWith('.heic') || picture.name.toLowerCase().endsWith('.heif'))) {
+        try {
+          const convertedBlob = await heic2any({
+            blob: picture,
+            toType: 'image/jpeg',
+            quality: 0.8,
+          });
+          const convertedFile = new File([convertedBlob as Blob], picture.name.replace(/\.[^/.]+$/, ".jpg"), { type: 'image/jpeg' });
+          formData.set('picture', convertedFile);
+        } catch (error) {
+          console.error('Image conversion error:', error);
+          // Optionally, show an error to the user
+          return;
+        }
+      }
+      formAction(formData);
+    });
+  };
+
   return (
     <main className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">디지노리 새끼 고양이 밥주기 기록 🐾</h1>
 
       <Card className="mb-8">
-        <form ref={formRef} action={formAction}>
+        <form ref={formRef} onSubmit={handleFormSubmit}>
           <CardHeader>
             <CardTitle>새로운 기록 추가</CardTitle>
             <CardDescription>사진과 함께 오늘의 기록을 남겨주세요.</CardDescription>
             {state.error && <p className="text-sm font-medium text-destructive">{state.error}</p>}
           </CardHeader>
           <CardContent className="space-y-4">
-              <div>
-                <label htmlFor="picture">사진</label>
-                <Input id="picture" name="picture" type="file" required />
-              </div>
-              <div>
-                <label htmlFor="notes">메모</label>
-                <Textarea id="notes" name="notes" placeholder="오늘의 고양이들 상태는 어떤가요?" />
-              </div>
+            <div>
+              <label htmlFor="picture">사진</label>
+              <Input id="picture" name="picture" type="file" required accept="image/*,.heic,.heif" />
+            </div>
+            <div>
+              <label htmlFor="notes">메모</label>
+              <Textarea id="notes" name="notes" placeholder="오늘의 고양이들 상태는 어떤가요?" />
+            </div>
           </CardContent>
           <CardFooter>
-            <SubmitButton />
+            <SubmitButton isPending={isPending} />
           </CardFooter>
         </form>
       </Card>
