@@ -42,7 +42,7 @@ export async function GET() {
               fontSize: 20,
             }}
           >
-            dginori.com
+            cat.dginori.com
           </span>
         </div>
         <div
@@ -61,7 +61,7 @@ export async function GET() {
             lineHeight: 1.4,
           }}
         >
-          디지노리 새끼 고양이 밥주기 기록 🐾
+          엄마 고양이와 세마리 새끼 고양이 밥주기 기록 - 과천창업지원센터(상상자이타워) by 디지노리 🐾
         </div>
       </div>
     ),

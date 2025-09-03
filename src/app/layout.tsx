@@ -14,11 +14,11 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://dginori-cat-feeding.vercel.app'),
-  title: "디지노리 새끼 고양이 밥주기 기록 🐾",
-  description: "디지노리 새끼 고양이들의 소중한 밥주기 기록을 남기고 공유하는 공간입니다.",
+  title: "엄마 고양이와 세마리 새끼 고양이 밥주기 기록 - 과천창업지원센터(상상자이타워) by 디지노리",
+  description: "디지노리 새끼 고양이들의 공동 밥주기 기록을 남기고 공유하는 공간입니다.",
   openGraph: {
-    title: "디지노리 새끼 고양이 밥주기 기록 🐾",
-    description: "디지노리 새끼 고양이들의 소중한 밥주기 기록을 남기고 공유하는 공간입니다.",
+    title: "엄마 고양이와 세마리 새끼 고양이 밥주기 기록 - 과천창업지원센터(상상자이타워) by 디지노리",
+    description: "디지노리 새끼 고양이들의 공동 밥주기 기록을 남기고 공유하는 공간입니다.",
     type: "website",
     url: "/",
     images: [
@@ -26,14 +26,14 @@ export const metadata: Metadata = {
         url: '/api/og',
         width: 1200,
         height: 630,
-        alt: '디지노리 새끼 고양이 밥주기 기록',
+        alt: '엄마 고양이와 세마리 아기 고양이 밥주기 기록 - 과천창업지원센터(상상자이타워) by 디지노리',
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "디지노리 새끼 고양이 밥주기 기록 🐾",
-    description: "디지노리 새끼 고양이들의 소중한 밥주기 기록을 남기고 공유하는 공간입니다.",
+    title: "엄마 고양이와 세마리 새끼 고양이 밥주기 기록 - 과천창업지원센터(상상자이타워) by 디지노리",
+    description: "디지노리 엄마,아기 고양이들의 공동 밥주기 기록을 남기고 공유하는 공간입니다.",
     images: ['/api/og'],
   },
 };
