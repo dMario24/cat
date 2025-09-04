@@ -4,7 +4,6 @@ export const dynamic = 'force-dynamic';
 
 import { useEffect, useRef, useState, useTransition } from "react";
 import { useFormState } from "react-dom";
-import heic2any from "heic2any";
 import {
   Card,
   CardContent,
@@ -75,6 +74,7 @@ export default function Home() {
 
       if (picture && (picture.type === 'image/heic' || picture.type === 'image/heif' || picture.name.toLowerCase().endsWith('.heic') || picture.name.toLowerCase().endsWith('.heif'))) {
         try {
+          const heic2any = (await import('heic2any')).default;
           const convertedBlob = await heic2any({
             blob: picture,
             toType: 'image/jpeg',
