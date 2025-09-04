@@ -12,6 +12,10 @@ export async function createFeedingRecord(prevState: FormState, formData: FormDa
   const notes = formData.get('notes') as string
   const picture = formData.get('picture') as File
 
+  if (!notes) {
+    return { error: "메시지는 필수", success: false };
+  }
+
   let imageUrl: string | null = null;
 
   if (picture && picture.size > 0) {
