@@ -10,6 +10,15 @@ export default function GtmScript() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
+  const pageview = (url: string) => {
+    if (typeof window.dataLayer !== 'undefined') {
+      window.dataLayer.push({
+        event: 'pageview',
+        page: url,
+      })
+    }
+  }
+
   useEffect(() => {
     if (pathname) {
       pageview(pathname)
@@ -41,13 +50,4 @@ export default function GtmScript() {
       </Script>
     </>
   )
-}
-
-export const pageview = (url: string) => {
-  if (typeof window.dataLayer !== 'undefined') {
-    window.dataLayer.push({
-      event: 'pageview',
-      page: url,
-    })
-  }
 }

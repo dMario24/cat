@@ -1,5 +1,7 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import { useEffect, useRef, useState, useTransition } from "react";
 import { useFormState } from "react-dom";
 import heic2any from "heic2any";
@@ -69,7 +71,7 @@ export default function Home() {
     event.preventDefault();
     startTransition(async () => {
       const formData = new FormData(event.currentTarget);
-      let picture = formData.get('picture') as File;
+      const picture = formData.get('picture') as File;
 
       if (picture && (picture.type === 'image/heic' || picture.type === 'image/heif' || picture.name.toLowerCase().endsWith('.heic') || picture.name.toLowerCase().endsWith('.heif'))) {
         try {
@@ -125,6 +127,7 @@ export default function Home() {
             {records.map((record) => (
               <Card key={record.id}>
                 <CardHeader>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   {record.image_url && <img src={record.image_url} alt={record.notes || "Cat"} className="rounded-md" />}
                 </CardHeader>
                 <CardContent>
