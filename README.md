@@ -12,10 +12,8 @@ npm run dev
 
 ## SUPABASE DB
 ```sql
-물론이죠. 아래 SQL 쿼리를 Supabase 대시보드의 SQL 편집기에서 실행하시면 됩니다.
 
-테이블 생성:
-
+-- 테이블 생성:
 CREATE TABLE public.feeding_records (
     id uuid NOT NULL DEFAULT uuid_generate_v4(),
     created_at timestamp with time zone NOT NULL DEFAULT now(),
@@ -23,9 +21,9 @@ CREATE TABLE public.feeding_records (
     image_url text NULL,
     CONSTRAINT feeding_records_pkey PRIMARY KEY (id)
 );
-저장소 버킷 생성: 저장소 버킷은 SQL로 직접 생성할 수 없습니다. Supabase 대시보드의 Storage 섹션에서 cat-pictures라는 이름의 공개 버킷을 만들어 주세요.
+-- 저장소 버킷 생성: 저장소 버킷은 SQL로 직접 생성할 수 없습니다. Supabase 대시보드의 Storage 섹션에서 cat-pictures라는 이름의 공개 버킷을 만들어 주세요.
 
-RLS 활성화 및 정책 생성:
+-- RLS 활성화 및 정책 생성:
 
 -- Row Level Security 활성화
 ALTER TABLE public.feeding_records ENABLE ROW LEVEL SECURITY;
@@ -38,4 +36,14 @@ FOR SELECT USING (true);
 CREATE POLICY "Public insert access" ON public.feeding_records
 FOR INSERT WITH CHECK (true);
 이 쿼리들을 실행하신 후에 알려주세요.
+
+
+CREATE POLICY "Allow public uploads to cat-pictures"
+ON storage.objects FOR INSERT
+TO anon
+WITH CHECK ( bucket_id = 'cat-pictures' );
+
+-- 사진은 필수값 아님
+ALTER TABLE feeding_records
+ALTER COLUMN image_url DROP NOT NULL;
 ```
