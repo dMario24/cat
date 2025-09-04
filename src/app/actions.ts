@@ -12,26 +12,26 @@ export async function createFeedingRecord(prevState: FormState, formData: FormDa
   const notes = formData.get('notes') as string
   const picture = formData.get('picture') as File
 
-  if (picture.size === 0) {
-    return { error: '사진을 선택해주세요.', success: false };
+  let imageUrl: string | null = null;
+
+  if (picture && picture.size > 0) {
+    // 1. Upload image to Supabase Storage
+    const { data: imageData, error: imageError } = await supabase.storage
+      .from('cat-pictures')
+      .upload(`${Date.now()}-${picture.name}`, picture)
+
+    if (imageError) {
+      console.error('Error uploading image:', imageError)
+      return { error: imageError.message, success: false }
+    }
+
+    // 2. Get public URL of the uploaded image
+    const { data: urlData } = supabase.storage
+      .from('cat-pictures')
+      .getPublicUrl(imageData.path)
+
+    imageUrl = urlData.publicUrl
   }
-
-  // 1. Upload image to Supabase Storage
-  const { data: imageData, error: imageError } = await supabase.storage
-    .from('cat-pictures')
-    .upload(`${Date.now()}-${picture.name}`, picture)
-
-  if (imageError) {
-    console.error('Error uploading image:', imageError)
-    return { error: imageError.message, success: false }
-  }
-
-  // 2. Get public URL of the uploaded image
-  const { data: urlData } = supabase.storage
-    .from('cat-pictures')
-    .getPublicUrl(imageData.path)
-
-  const imageUrl = urlData.publicUrl
 
   // 3. Insert new record into the database
   const { error: recordError } = await supabase
