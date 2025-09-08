@@ -77,10 +77,10 @@ export default function Home() {
 
       if (picture && picture.size > 0 && (picture.type === 'image/heic' || picture.type === 'image/heif' || picture.name.toLowerCase().endsWith('.heic') || picture.name.toLowerCase().endsWith('.heif'))) {
         try {
-          const heic2any = (await import('heic2any')).default;
-          const convertedBlob = await heic2any({
+          const { heicTo } = await import('heic-to');
+          const convertedBlob = await heicTo({
             blob: picture,
-            toType: 'image/jpeg',
+            type: 'image/jpeg',
             quality: 0.8,
           });
           const convertedFile = new File([convertedBlob as Blob], picture.name.replace(/\.[^/.]+$/, ".jpg"), { type: 'image/jpeg' });
