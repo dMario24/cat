@@ -44,10 +44,12 @@ export default function Home() {
   const formRef = useRef<HTMLFormElement>(null);
   const [state, formAction] = useFormState(createFeedingRecord, initialState);
   const [isPending, startTransition] = useTransition();
+  const [conversionError, setConversionError] = useState<string | null>(null);
 
   useEffect(() => {
     if (state.success) {
       formRef.current?.reset();
+      setConversionError(null);
     }
   }, [state.success]);
 
@@ -68,6 +70,8 @@ export default function Home() {
 
   const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setConversionError(null); // Reset conversion error on new submission
+
     startTransition(async () => {
       const formData = new FormData(event.currentTarget);
       const picture = formData.get('picture') as File;
@@ -84,7 +88,7 @@ export default function Home() {
           formData.set('picture', convertedFile);
         } catch (error) {
           console.error('Image conversion error:', error);
-          // Optionally, show an error to the user
+          setConversionError('이미지 변환 중 오류가 발생했습니다. 다른 파일을 선택해주세요.');
           return;
         }
       }
@@ -111,6 +115,7 @@ export default function Home() {
             <div>
               <label htmlFor="picture">사진 (선택)</label>
               <Input id="picture" name="picture" type="file" accept="image/*,.heic,.heif" />
+              {conversionError && <p className="text-sm font-medium text-destructive mt-2">{conversionError}</p>}
             </div>
           </CardContent>
           <CardFooter>
