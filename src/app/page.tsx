@@ -41,6 +41,7 @@ function SubmitButton({ isPending }: { isPending: boolean }) {
 export default function Home() {
   const [records, setRecords] = useState<FeedingRecord[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [conversionError, setConversionError] = useState<string | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const [state, formAction] = useFormState(createFeedingRecord, initialState);
   const [isPending, startTransition] = useTransition();
@@ -48,6 +49,7 @@ export default function Home() {
   useEffect(() => {
     if (state.success) {
       formRef.current?.reset();
+      setConversionError(null);
     }
   }, [state.success]);
 
@@ -68,11 +70,12 @@ export default function Home() {
 
   const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setConversionError(null); // Reset conversion error on new submission
     startTransition(async () => {
       const formData = new FormData(event.currentTarget);
       const picture = formData.get('picture') as File;
 
-      if (picture && (picture.type === 'image/heic' || picture.type === 'image/heif' || picture.name.toLowerCase().endsWith('.heic') || picture.name.toLowerCase().endsWith('.heif'))) {
+      if (picture && picture.size > 0 && (picture.type === 'image/heic' || picture.type === 'image/heif' || picture.name.toLowerCase().endsWith('.heic') || picture.name.toLowerCase().endsWith('.heif'))) {
         try {
           const heic2any = (await import('heic2any')).default;
           const convertedBlob = await heic2any({
@@ -84,7 +87,7 @@ export default function Home() {
           formData.set('picture', convertedFile);
         } catch (error) {
           console.error('Image conversion error:', error);
-          // Optionally, show an error to the user
+          setConversionError('이미지 변환에 실패했습니다. 다른 파일을 시도해주세요.');
           return;
         }
       }
@@ -110,7 +113,8 @@ export default function Home() {
             </div>
             <div>
               <label htmlFor="picture">사진 (선택)</label>
-              <Input id="picture" name="picture" type="file" accept="image/*,.heic,.heif" />
+              <Input id="picture" name="picture" type="file" accept="image/*,.heic,.heif" capture="environment" multiple={false} />
+              {conversionError && <p className="text-sm font-medium text-destructive mt-2">{conversionError}</p>}
             </div>
           </CardContent>
           <CardFooter>
