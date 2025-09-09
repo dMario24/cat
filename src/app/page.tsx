@@ -87,7 +87,17 @@ export default function Home() {
           formData.set('picture', convertedFile);
         } catch (error) {
           console.error('Image conversion error:', error);
-          setConversionError('이미지 변환에 실패했습니다. 다른 파일을 시도해주세요.');
+          let errorMessage = 'An unknown error occurred.';
+          if (error instanceof Error) {
+            errorMessage = error.stack || error.message;
+          } else {
+            try {
+              errorMessage = JSON.stringify(error, null, 2);
+            } catch {
+              errorMessage = String(error);
+            }
+          }
+          setConversionError(`이미지 변환에 실패했습니다. 다음 오류를 확인해주세요:\n${errorMessage}`);
           return;
         }
       }
@@ -114,7 +124,11 @@ export default function Home() {
             <div>
               <label htmlFor="picture">사진 (선택)</label>
               <Input id="picture" name="picture" type="file" accept="image/*,.heic,.heif" capture="environment" multiple={false} />
-              {conversionError && <p className="text-sm font-medium text-destructive mt-2">{conversionError}</p>}
+              {conversionError && (
+                <pre className="text-sm font-medium text-destructive mt-2 whitespace-pre-wrap">
+                  {conversionError}
+                </pre>
+              )}
             </div>
           </CardContent>
           <CardFooter>
