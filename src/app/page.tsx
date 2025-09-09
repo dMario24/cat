@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { createFeedingRecord, FormState } from "./actions";
 import { supabase } from "@/lib/supabase";
+import ErrorBoundary from "@/components/ErrorBoundary";
 
 const initialState: FormState = {
   error: null,
@@ -77,17 +78,27 @@ export default function Home() {
 
       if (picture && picture.size > 0 && (picture.type === 'image/heic' || picture.type === 'image/heif' || picture.name.toLowerCase().endsWith('.heic') || picture.name.toLowerCase().endsWith('.heif'))) {
         try {
-          const heic2any = (await import('heic2any')).default;
-          const convertedBlob = await heic2any({
+          const { heicTo } = await import('heic-to');
+          const convertedBlob = await heicTo({
             blob: picture,
-            toType: 'image/jpeg',
+            type: 'image/jpeg',
             quality: 0.8,
           });
           const convertedFile = new File([convertedBlob as Blob], picture.name.replace(/\.[^/.]+$/, ".jpg"), { type: 'image/jpeg' });
           formData.set('picture', convertedFile);
         } catch (error) {
           console.error('Image conversion error:', error);
-          setConversionError('이미지 변환에 실패했습니다. 다른 파일을 시도해주세요.');
+          let errorMessage = 'An unknown error occurred.';
+          if (error instanceof Error) {
+            errorMessage = error.stack || error.message;
+          } else {
+            try {
+              errorMessage = JSON.stringify(error, null, 2);
+            } catch {
+              errorMessage = String(error);
+            }
+          }
+          setConversionError(`이미지 변환에 실패했습니다. 다음 오류를 확인해주세요:\n${errorMessage}`);
           return;
         }
       }
@@ -99,9 +110,10 @@ export default function Home() {
     <main className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">디지노리 새끼 고양이 밥주기 기록 🐾</h1>
 
-      <Card className="mb-8">
-        <form ref={formRef} onSubmit={handleFormSubmit}>
-          <CardHeader>
+      <ErrorBoundary>
+        <Card className="mb-8">
+          <form ref={formRef} onSubmit={handleFormSubmit}>
+            <CardHeader>
             <CardTitle>새로운 기록 추가</CardTitle>
             <CardDescription>사진과 함께 오늘의 기록을 남겨주세요.</CardDescription>
             {state.error && <p className="text-sm font-medium text-destructive">{state.error}</p>}
@@ -114,7 +126,11 @@ export default function Home() {
             <div>
               <label htmlFor="picture">사진 (선택)</label>
               <Input id="picture" name="picture" type="file" accept="image/*,.heic,.heif" capture="environment" multiple={false} />
-              {conversionError && <p className="text-sm font-medium text-destructive mt-2">{conversionError}</p>}
+              {conversionError && (
+                <pre className="text-sm font-medium text-destructive mt-2 whitespace-pre-wrap">
+                  {conversionError}
+                </pre>
+              )}
             </div>
           </CardContent>
           <CardFooter>
@@ -122,6 +138,7 @@ export default function Home() {
           </CardFooter>
         </form>
       </Card>
+    </ErrorBoundary>
 
       <div>
         <h2 className="text-xl font-bold mb-4">최근 기록</h2>
