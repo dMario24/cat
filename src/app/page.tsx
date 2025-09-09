@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { createFeedingRecord, FormState } from "./actions";
 import { supabase } from "@/lib/supabase";
+import ErrorBoundary from "@/components/ErrorBoundary";
 
 const initialState: FormState = {
   error: null,
@@ -109,9 +110,10 @@ export default function Home() {
     <main className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">디지노리 새끼 고양이 밥주기 기록 🐾</h1>
 
-      <Card className="mb-8">
-        <form ref={formRef} onSubmit={handleFormSubmit}>
-          <CardHeader>
+      <ErrorBoundary>
+        <Card className="mb-8">
+          <form ref={formRef} onSubmit={handleFormSubmit}>
+            <CardHeader>
             <CardTitle>새로운 기록 추가</CardTitle>
             <CardDescription>사진과 함께 오늘의 기록을 남겨주세요.</CardDescription>
             {state.error && <p className="text-sm font-medium text-destructive">{state.error}</p>}
@@ -136,6 +138,7 @@ export default function Home() {
           </CardFooter>
         </form>
       </Card>
+    </ErrorBoundary>
 
       <div>
         <h2 className="text-xl font-bold mb-4">최근 기록</h2>
