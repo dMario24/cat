@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { createFeedingRecord, FormState } from "./actions";
 import { supabase } from "@/lib/supabase";
+import imageCompression from 'browser-image-compression';
 
 const initialState: FormState = {
   error: null,
@@ -73,22 +74,42 @@ export default function Home() {
     setConversionError(null); // Reset conversion error on new submission
     startTransition(async () => {
       const formData = new FormData(event.currentTarget);
-      const picture = formData.get('picture') as File;
+      let picture = formData.get('picture') as File;
 
-      if (picture && picture.size > 0 && (picture.type === 'image/heic' || picture.type === 'image/heif' || picture.name.toLowerCase().endsWith('.heic') || picture.name.toLowerCase().endsWith('.heif'))) {
-        try {
-          const heic2any = (await import('heic2any')).default;
-          const convertedBlob = await heic2any({
-            blob: picture,
-            toType: 'image/jpeg',
-            quality: 0.8,
-          });
-          const convertedFile = new File([convertedBlob as Blob], picture.name.replace(/\.[^/.]+$/, ".jpg"), { type: 'image/jpeg' });
-          formData.set('picture', convertedFile);
-        } catch (error) {
-          console.error('Image conversion error:', error);
-          setConversionError('이미지 변환에 실패했습니다. 다른 파일을 시도해주세요.');
-          return;
+      if (picture && picture.size > 0) {
+        // HEIC/HEIF conversion
+        if (picture.type === 'image/heic' || picture.type === 'image/heif' || picture.name.toLowerCase().endsWith('.heic') || picture.name.toLowerCase().endsWith('.heif')) {
+          try {
+            const heic2any = (await import('heic2any')).default;
+            const convertedBlob = await heic2any({
+              blob: picture,
+              toType: 'image/jpeg',
+              quality: 0.8,
+            });
+            picture = new File([convertedBlob as Blob], picture.name.replace(/\.[^/.]+$/, ".jpg"), { type: 'image/jpeg' });
+            formData.set('picture', picture);
+          } catch (error) {
+            console.error('Image conversion error:', error);
+            setConversionError('이미지 변환에 실패했습니다. 다른 파일을 시도해주세요.');
+            return;
+          }
+        }
+
+        // Image compression
+        if (picture.size > 1024 * 1024) {
+          try {
+            const options = {
+              maxSizeMB: 1,
+              maxWidthOrHeight: 1920,
+              useWebWorker: true,
+            }
+            const compressedFile = await imageCompression(picture, options);
+            formData.set('picture', compressedFile);
+          } catch (error) {
+            console.error('Image compression error:', error);
+            setConversionError('이미지 압축에 실패했습니다. 다른 파일을 시도해주세요.');
+            // Don't return, proceed with original image if compression fails
+          }
         }
       }
       formAction(formData);
