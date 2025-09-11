@@ -2,8 +2,8 @@
 
 export const dynamic = 'force-dynamic';
 
-import { useEffect, useRef, useState, useTransition } from "react";
-import { useFormState } from "react-dom";
+import React, { useEffect, useRef, useState, useTransition, useActionState } from "react";
+
 import {
   Card,
   CardContent,
@@ -44,7 +44,10 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [conversionError, setConversionError] = useState<string | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
-  const [state, formAction] = useFormState(createFeedingRecord, initialState);
+  // const [state, formAction] = useFormState(createFeedingRecord, initialState);
+  const [state, formAction] = useActionState(createFeedingRecord, initialState);
+
+
   const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
