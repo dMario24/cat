@@ -121,7 +121,7 @@ export default function Home() {
 
   return (
     <main className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">디지노리 새끼 고양이 밥주기 기록 🐾</h1>
+      <h1 className="text-2xl font-bold mb-4">엄마 고양이 함께 밥주기 기록 🐾 by 디지노리</h1>
 
       <Card className="mb-8">
         <form ref={formRef} onSubmit={handleFormSubmit}>
